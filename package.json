@@ -1,0 +1,29 @@
+{
+  "name": "compartoviaje",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plataforma de movilidad colaborativa para Argentina (BlaBlaCar-like)",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "dev": "NODE_ENV=development node backend/src/server.js",
+    "test": "node --test backend/test/*.test.js",
+    "seed": "node backend/scripts/seed.js",
+    "init-db": "node backend/scripts/init-db.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "nano": "^10.1.3",
+    "uuid": "^9.0.1",
+    "ws": "^8.17.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {}
+}
