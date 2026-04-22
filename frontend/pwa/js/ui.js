@@ -46,5 +46,20 @@ export function formatDate(iso) {
 
 export function ratingStars(r) {
   if (!r || !r.count) return 'Sin reseñas';
-  return `⭐ ${r.average.toFixed(1)} (${r.count})`;
+  return `★ ${r.average.toFixed(1)} (${r.count})`;
+}
+
+export function initials(name) {
+  if (!name) return '·';
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0] ? parts[0][0] : '';
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+  return (first + last).toUpperCase() || '·';
+}
+
+export function priceEl(n, unit) {
+  const div = document.createElement('div');
+  div.className = 'price';
+  div.innerHTML = `<span class="sign">$</span>${new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(n || 0)}${unit ? `<span class="unit">${unit}</span>` : ''}`;
+  return div;
 }

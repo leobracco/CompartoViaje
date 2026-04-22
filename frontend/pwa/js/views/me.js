@@ -1,4 +1,4 @@
-import { el, mount, toast, ratingStars } from '../ui.js';
+import { el, mount, toast, ratingStars, initials } from '../ui.js';
 import { api } from '../api.js';
 import { store } from '../store.js';
 import { navigate } from '../router.js';
@@ -6,68 +6,94 @@ import { navigate } from '../router.js';
 export async function meView() {
   if (!store.token) { navigate('/login?next=/me'); return; }
   let me;
-  try { me = await api.me(); }
-  catch { store.logout(); navigate('/login'); return; }
+  try { me = await api.me(); } catch { store.logout(); navigate('/login'); return; }
 
   const verif = me.verification;
-  const verifCard = el('div', { class: 'card stack' }, [
-    el('h2', {}, 'Verificaciones'),
-    verifRow('Email', verif.email ? 'ok' : 'pendiente'),
-    verifRow('Identidad', verif.identity),
-    verifRow('Licencia', verif.license),
-    verifRow('Seguro', verif.insurance),
-    el('div', { class: 'row' }, [
-      el('a', { class: 'btn secondary', href: '#/me/verify' }, 'Enviar documentos'),
-      el('a', { class: 'btn secondary', href: '#/me/vehicle' }, 'Mi vehículo'),
+  const isDriver = me.roles.includes('driver');
+  const isAdmin = me.roles.includes('admin');
+  const memberYear = me.createdAt ? new Date(me.createdAt).getFullYear() : new Date().getFullYear();
+  const yearsMember = Math.max(0, new Date().getFullYear() - memberYear);
+
+  const hero = el('section', { class: 'hero' }, [
+    el('div', { style: 'display:flex;gap:14px;align-items:center;position:relative' }, [
+      el('span', {
+        style: 'width:64px;height:64px;border-radius:50%;background:white;color:var(--celeste-dark);display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex-shrink:0',
+      }, initials(me.fullName)),
+      el('div', { style: 'flex:1;color:white' }, [
+        el('div', { style: 'font-family:var(--font-serif);font-size:24px;font-weight:600' }, me.fullName),
+        el('div', { style: 'opacity:.9;font-size:13px' }, [
+          isDriver ? 'Conductor · ' : 'Pasajero · ',
+          me.phone ? 'Argentina' : 'Perfil',
+        ]),
+        el('div', { style: 'margin-top:4px' }, [el('span', { class: 'rating' }, ratingStars(me.rating))]),
+      ]),
+    ]),
+    el('div', { class: 'row', style: 'margin-top:16px;position:relative' }, [
+      stat('Email', me.email ? '✓' : '—'),
+      stat('Rating', me.rating && me.rating.count ? me.rating.average.toFixed(1) + '★' : '—'),
+      stat('Miembro', `${yearsMember} año${yearsMember === 1 ? '' : 's'}`),
     ]),
   ]);
 
-  const roles = me.roles.join(', ');
-
-  const isAdmin = me.roles.includes('admin');
+  const verifCard = el('div', { class: 'card' }, [
+    el('div', { class: 'label', style: 'margin-bottom:10px' }, 'Verificaciones'),
+    el('div', { class: 'verif-list' }, [
+      verifRow('DNI verificado', 'Identidad confirmada', verif.identity),
+      verifRow('Email verificado', me.email, verif.email ? 'approved' : 'none'),
+      verifRow('Licencia de conducir', isDriver ? 'Vigente hasta 2026' : 'No aplica', verif.license),
+      verifRow('Seguro del vehículo', me.vehicle ? `${me.vehicle.brand || ''} ${me.vehicle.model || ''}` : 'No aplica', verif.insurance),
+      verifRow('Teléfono verificado', me.phone || '—', verif.phone ? 'approved' : 'none'),
+    ]),
+    el('div', { class: 'row', style: 'margin-top:12px' }, [
+      el('a', { class: 'btn secondary block', href: '#/me/verify' }, 'Enviar documentos'),
+      el('a', { class: 'btn secondary block', href: '#/me/vehicle' }, 'Mi vehículo'),
+    ]),
+  ]);
 
   mount(el('div', {}, [
-    el('h1', {}, `Hola, ${me.fullName}`),
-    el('div', { class: 'card' }, [
-      el('div', {}, `Email: ${me.email}`),
-      el('div', {}, `Teléfono: ${me.phone || '(sin cargar)'}`),
-      el('div', {}, `Roles: ${roles}`),
-      el('div', { class: 'rating' }, ratingStars(me.rating)),
-    ]),
+    hero,
     verifCard,
-    !me.roles.includes('driver') ? el('div', { class: 'card' }, [
-      el('div', {}, 'Querés ser conductor?'),
+    !isDriver ? el('div', { class: 'card center' }, [
+      el('div', { style: 'margin-bottom:8px' }, '¿Querés ofrecer viajes?'),
       el('button', {
+        class: 'conductor',
         onclick: async () => { await api.becomeDriver(); toast('Rol conductor agregado'); location.reload(); },
       }, 'Convertirme en conductor'),
     ]) : null,
-    isAdmin ? el('a', { class: 'btn secondary', href: '#/admin' }, 'Panel de administración') : null,
-    el('button', { class: 'btn ghost', onclick: () => { store.logout(); navigate('/'); location.reload(); } }, 'Cerrar sesión'),
+    isAdmin ? el('a', { class: 'btn secondary block', href: '#/admin' }, 'Panel de administración') : null,
+    el('button', { class: 'btn ghost block', onclick: () => { store.logout(); location.hash = '#/'; location.reload(); } }, 'Cerrar sesión'),
   ]));
 }
 
-function verifRow(label, status) {
-  const map = {
-    ok: ['ok', 'Aprobado'],
-    approved: ['ok', 'Aprobado'],
-    pending: ['warn', 'En revisión'],
-    rejected: ['danger', 'Rechazado'],
-    none: ['', 'Sin enviar'],
-    pendiente: ['warn', 'Pendiente'],
-  };
-  const [cls, text] = map[status] || ['', status];
-  return el('div', { class: 'row', style: 'align-items:center' }, [
-    el('div', {}, label),
-    el('span', { class: `badge ${cls}` }, text),
+function stat(label, value) {
+  return el('div', {
+    style: 'background:rgba(255,255,255,0.18);border-radius:14px;padding:10px;text-align:center;color:white;backdrop-filter:blur(8px)',
+  }, [
+    el('div', { style: 'font-family:var(--font-serif);font-size:20px;font-weight:600' }, value),
+    el('div', { style: 'font-size:11px;font-weight:700;letter-spacing:0.12em;opacity:.85' }, label.toUpperCase()),
+  ]);
+}
+
+function verifRow(title, subtitle, status) {
+  const map = { approved: 'ok', pending: 'pending', rejected: 'rejected', none: 'none' };
+  const cls = map[status] || 'none';
+  const icon = status === 'approved' ? '✓' : status === 'pending' ? '…' : status === 'rejected' ? '✗' : '–';
+  return el('div', { class: `verif-item ${cls}` }, [
+    el('span', { class: 'check' }, icon),
+    el('div', { class: 'info' }, [
+      el('div', { class: 't' }, title),
+      el('div', { class: 's' }, subtitle || '—'),
+    ]),
   ]);
 }
 
 export async function verifyView() {
   if (!store.token) { navigate('/login'); return; }
-  const form = (fields, submit, label) => {
+  const form = (title, fields, submit, label) => {
     const f = el('form', { class: 'card stack' }, [
+      el('h2', { style: 'margin-top:0' }, title),
       ...fields.map((n) => el('div', { class: 'field' }, [el('label', {}, n.label), el('input', { name: n.name, type: n.type || 'text', required: true })])),
-      el('button', { type: 'submit' }, label),
+      el('button', { type: 'submit', class: 'block' }, label),
     ]);
     f.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -83,8 +109,7 @@ export async function verifyView() {
 
   mount(el('div', {}, [
     el('h1', {}, 'Enviar verificaciones'),
-    el('h2', {}, 'Identidad'),
-    form(
+    form('Identidad',
       [
         { label: 'URL foto DNI frente', name: 'dniFrontUrl', type: 'url' },
         { label: 'URL foto DNI dorso', name: 'dniBackUrl', type: 'url' },
@@ -93,8 +118,7 @@ export async function verifyView() {
       (d) => api.submitIdentity(d),
       'Enviar identidad',
     ),
-    el('h2', {}, 'Licencia de conducir'),
-    form(
+    form('Licencia de conducir',
       [
         { label: 'Número', name: 'number' },
         { label: 'Vence el (YYYY-MM-DD)', name: 'expiresAt' },
@@ -103,8 +127,7 @@ export async function verifyView() {
       (d) => api.submitLicense({ ...d, expiresAt: new Date(d.expiresAt).toISOString() }),
       'Enviar licencia',
     ),
-    el('h2', {}, 'Seguro'),
-    form(
+    form('Seguro',
       [
         { label: 'Número de póliza', name: 'policy' },
         { label: 'Vence el (YYYY-MM-DD)', name: 'expiresAt' },
@@ -123,7 +146,7 @@ export async function vehicleView() {
   const v = me.vehicle || {};
 
   const form = el('form', { class: 'card stack' }, [
-    el('h1', {}, 'Mi vehículo'),
+    el('h1', { style: 'margin-top:0' }, 'Mi vehículo'),
     ...['plate', 'brand', 'model', 'color'].map((n) => el('div', { class: 'field' }, [
       el('label', {}, n),
       el('input', { name: n, value: v[n] || '', required: true }),
@@ -132,7 +155,7 @@ export async function vehicleView() {
       el('div', { class: 'field' }, [el('label', {}, 'Año'), el('input', { name: 'year', type: 'number', min: '1980', value: v.year || '' })]),
       el('div', { class: 'field' }, [el('label', {}, 'Asientos'), el('input', { name: 'seats', type: 'number', min: '1', max: '8', value: v.seats || '4' })]),
     ]),
-    el('button', { type: 'submit' }, 'Guardar'),
+    el('button', { type: 'submit', class: 'conductor block' }, 'Guardar'),
   ]);
 
   form.addEventListener('submit', async (e) => {

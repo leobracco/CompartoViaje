@@ -30,19 +30,29 @@ function refreshNav() {
   const nav = document.getElementById('nav');
   nav.innerHTML = '';
   if (store.token) {
-    nav.innerHTML = `<a href="#/bookings">Reservas</a><a href="#/me">${store.user ? store.user.fullName.split(' ')[0] : 'Mi cuenta'}</a>`;
+    const name = store.user && store.user.fullName ? store.user.fullName.split(' ')[0] : 'Perfil';
+    nav.innerHTML = `<a href="#/me">${name}</a>`;
   } else {
-    nav.innerHTML = '<a href="#/login">Ingresar</a><a href="#/register">Registrarme</a>';
+    nav.innerHTML = '<a href="#/login">Ingresar</a><a href="#/register" class="active">Registrarme</a>';
+  }
+}
+
+function refreshActive() {
+  const path = (location.hash || '#/').slice(1).split('?')[0];
+  for (const a of document.querySelectorAll('.bottombar a')) {
+    const href = a.getAttribute('href');
+    const segment = href.slice(1);
+    const isActive = segment === path || (segment === '/' && path === '/') ||
+      (segment !== '/' && path.startsWith(segment));
+    a.classList.toggle('active', isActive);
   }
 }
 
 refreshNav();
+refreshActive();
 window.addEventListener('hashchange', () => {
   refreshNav();
-  const active = (location.hash || '#/').slice(1).split('?')[0];
-  for (const a of document.querySelectorAll('.bottombar a')) {
-    a.classList.toggle('active', a.getAttribute('href') === '#' + active || (active === '/' && a.getAttribute('href') === '#/'));
-  }
+  refreshActive();
 });
 connect();
 dispatch();
