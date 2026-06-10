@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="44" fill="#15171b"/>
-  <circle cx="150" cy="46" r="40" fill="#d8f45f" opacity="0.22"/>
-  <text x="50%" y="56%" font-family="Arial, Helvetica, sans-serif" font-size="84" font-weight="700" text-anchor="middle" fill="#d8f45f" dominant-baseline="middle">CV</text>
+  <rect width="192" height="192" rx="44" fill="#00aff5"/>
+  <circle cx="150" cy="46" r="40" fill="#ffffff" opacity="0.16"/>
+  <text x="50%" y="56%" font-family="Arial, Helvetica, sans-serif" font-size="80" font-weight="700" text-anchor="middle" fill="white" dominant-baseline="middle">CV</text>
 </svg>

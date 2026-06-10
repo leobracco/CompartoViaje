@@ -1,4 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#15171b"/>
-  <text x="50%" y="56%" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" text-anchor="middle" fill="#d8f45f" dominant-baseline="middle">CV</text>
+  <rect width="64" height="64" rx="32" fill="#00aff5"/>
+  <text x="50%" y="56%" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" text-anchor="middle" fill="white" dominant-baseline="middle">CV</text>
 </svg>

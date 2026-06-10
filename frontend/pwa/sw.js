@@ -5,7 +5,7 @@
    - Otros GET /api: network-first, fallback a cache.
    - POSTs se pueden encolar con Background Sync (stub). */
 
-const VERSION = 'cv-v2';
+const VERSION = 'cv-v3';
 const SHELL = [
   '/',
   '/index.html',

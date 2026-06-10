@@ -12,7 +12,7 @@ export async function reviewView({ params }) {
     starsEl.innerHTML = '';
     for (let i = 1; i <= 5; i++) {
       starsEl.appendChild(el('span', {
-        style: `cursor:pointer;color:${i <= stars ? '#15171b' : '#d6d9de'}`,
+        style: `cursor:pointer;color:${i <= stars ? '#00aff5' : '#d3dee1'}`,
         onclick: () => { stars = i; render(); },
       }, '★'));
     }
