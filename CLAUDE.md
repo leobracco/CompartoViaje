@@ -9,7 +9,7 @@ CompartoViaje is a BlaBlaCar-style ride-sharing platform for Argentina: Node.js/
 ## Commands
 
 ```bash
-npm start        # Run the server (serves API + PWA at http://localhost:3000)
+npm start        # Run the server (serves API + PWA at http://localhost:5004)
 npm run dev      # Same, with NODE_ENV=development
 npm test         # Smoke tests via node --test backend/test/*.test.js
 npm run init-db  # Create CouchDB databases and Mango indexes

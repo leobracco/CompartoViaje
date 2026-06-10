@@ -9,8 +9,8 @@ const env = (key, fallback) => {
 
 const config = {
   env: env('NODE_ENV', 'development'),
-  port: parseInt(env('PORT', '3000'), 10),
-  appUrl: env('APP_URL', 'http://localhost:3000'),
+  port: parseInt(env('PORT', '5004'), 10),
+  appUrl: env('APP_URL', 'http://localhost:5004'),
 
   couch: {
     url: env('COUCHDB_URL', 'http://admin:admin@localhost:5984'),

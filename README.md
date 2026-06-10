@@ -90,7 +90,7 @@ Usuarios de prueba:
 npm start
 ```
 
-Abrí <http://localhost:3000>. La PWA se sirve desde el mismo proceso y se puede instalar en mobile.
+Abrí <http://localhost:5004>. La PWA se sirve desde el mismo proceso y se puede instalar en mobile.
 
 ### 5. Tests de humo
 
